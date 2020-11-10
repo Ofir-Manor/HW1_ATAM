@@ -23,6 +23,4 @@ else
 	echo "${YOUR_ASM} tested with ${TEST_NAME}: FAIL"
 	STATUS=1	
 fi
-
-rm merged.*
 exit ${STATUS}
