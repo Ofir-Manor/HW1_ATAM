@@ -2,45 +2,56 @@
 
 .section .text
 _start:
-	movq 	head(%rip), %rdi #int* p1 = head
-	movq	$0, %rsi #int* p2 = NULL
-	movq	%rdi, %r8 #int* p3 = p1
-	movl 	$0, %eax #int t1 = 0
-	movl	$0, %ecx #int t2 = 0
-	movb 	$0, %bl #bool not_sorted = FALSE
-	testq 	%rdi, %rdi #if(p1 == NULL){
-	cmovne  8(%rdi), %rsi #p2 = head -> next
-.SORT:
-	testq	%rsi, %rsi
-	je 	.DONE #		goto DONE }
-	movl	(%rdi), %eax #t1 = p1 -> id	
-	movl	(%rsi), %ecx #t2 = p2 -> id
-	#chek if need to switch nodes
-	cmpl 	%ecx, %eax
-	jle 	.NO_SWITCH
-	#switch nodes
-	movb 	$1, %bl #not_sorted = TRUE
-	movq 	8(%rsi), %r9 #int* temp = p2 -> next
-	movq 	%rdi, 8(%rsi) #p2 -> next = p1
-	movq	8(%rdi), %r9 #p1 -> next = temp
-	movq	%rsi, (%r8) #head / p3 -> next = p2
-	#getting things ready for next iteration
-	movq 	%r8, %rsi #p3 = p2
-	addq	$8, %r8 #p3 = p3 -> next
-	movq	%r9, %rsi #p2 = temp
-	testq	%rsi, %rsi
-	jne 	.SORT
-.NO_SWITCH:
-	#getting things ready for next iteration
-	movq	%rdi, %r8 #p3 = p1
-	addq 	$8, %r8 #p3 = p3 -> next 
-	movq	8(%rdi), %rdi #p1 = p1 -> next
-	testq	%rsi, %rsi
-	cmovne	8(%rsi), %rsi #p2 = p2 -> next only if legal
-	jne 	.SORT #inner loop, until we reach the end of the list
-.DONE:
-	testb	%bl, %bl #not_sorted == 0  => list sorted
-	jne _start
+.START:
+	movq 	head(%rip), %rax #rax = head (int* p1 = head)
+	xor	%rbx, %rbx #rbx = 0 (int* p2 = NULL)
+	movq	$1, %rcx #rcx = 1 (int sorted = 1)
+	xor 	%rdi, %rdi #rdi = 0 (enum case = HEAD)
+	xor	%rdx, %rdx
+	movq	$2, %r10
+	jmp 	.WHILE
+.NEXT:
+	movq	8(%rax), %rax #p1 = p1 -> next
+.SWITCH:
+	movq    8(%rax), %rbx #p2 = p1 -> next
+        testq	%rbx, %rbx
+	cmove	%r10, %rdi #if(p2 == NULL) case = TAIL
+	jmp	*.CASE(,%rdi,8)
+.CASE:
+	.quad 	.HEAD
+	.quad 	.MID
+	.quad 	.TAIL
+.HEAD:
+	inc 	%rdi #case = MID
+	movl	(%rbx), %r15d
+	cmpl	%r15d, (%rax)
+	jle	.NEXT
+	movq	$0, %rcx
+	jmp 	.MID
+	movq	%rbx, (head) #head = p2
+	movq	8(%rbx), %r11	
+	movq	%r11, 8(%rax) #p1 -> next = p2 -> next
+	movq	%rax, 8(%rbx) #p2 -> next = p1
+	jmp	.NEXT
+.TAIL:
+	testq	%rcx, %rcx #if(!sorted) goto start
+	je	.START
+	jmp	.END
+.MID:
+	movl	(%rbx), %r12d #t2 = p2 -> id  
+	cmpl	%r12d, (%rax)
+	jle	.NEXT #if(p1 -> id < p2 -> id) goto NEXT
+	movq 	$0, %rcx
+	movl	(%rax), %r8d #t1 = p2 -> id
+	movl	4(%rax), %r9d #t12 = p1 -> data
+        movl   	4(%rbx), %r13d #t22 = p2 -> data
+	movl    %r12d, (%rax) #p1 -> id = t2
+	movl  	%r13d, 4(%rax) #p1 -> data = t22
+	movl   	%r8d, (%rbx) #p2 -> id = t1
+        movl   	%r9d, 4(%rbx) #p2 -> data t12
+	jmp	.NEXT	
+.WHILE:
+	testq 	%rax, %rax #while(p1 != NULL)
+	jne 	.SWITCH	
+.END:
 
-	
-	

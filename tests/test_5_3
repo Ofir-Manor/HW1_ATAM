@@ -36,16 +36,16 @@ bad_exit:
 head:
         .quad   A
 A:
-        .int    1
-        .int    22
+        .int    3
+        .int    15
         .quad   B
 B:
         .int    2
         .int    6
         .quad   C
 C:
-        .int    3
-        .int    15
+        .int    1
+        .int    22
         .quad   D
 D:
         .int    4
