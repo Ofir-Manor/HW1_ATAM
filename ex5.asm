@@ -28,11 +28,11 @@ _start:
 	jle	.NEXT
 	movq	$0, %rcx
 	jmp 	.MID
-	movq	%rbx, (head) #head = p2
-	movq	8(%rbx), %r11	
-	movq	%r11, 8(%rax) #p1 -> next = p2 -> next
-	movq	%rax, 8(%rbx) #p2 -> next = p1
-	jmp	.NEXT
+	#movq	%rbx, (head) #head = p2
+	#movq	8(%rbx), %r11	
+	#movq	%r11, 8(%rax) #p1 -> next = p2 -> next
+	#movq	%rax, 8(%rbx) #p2 -> next = p1
+	#jmp	.NEXT
 .TAIL:
 	testq	%rcx, %rcx #if(!sorted) goto start
 	je	.START
